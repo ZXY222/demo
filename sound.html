@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<audio class="my-audio">不支持当前浏览器</audio>
+<button class="open">开启录制</button>
+<button class="stop">停止录制</button>
+<button class="play">播放录制声音</button>
+<script>
+    let stream  = null
+    let mediaRecorder = null
+    let chunks = []
+    window.onload = async ()=> {
+        stream = await navigator.mediaDevices.getUserMedia({
+            audio: true
+        })
+       mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" })
+        mediaRecorder.onstop = (e)=>{
+            var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+            chunks = []
+            document.querySelector('.my-audio').src = URL.createObjectURL(blob);
+        }
+        mediaRecorder.ondataavailable = function(e) {
+            chunks.push(e.data)
+        }
+    }
+    document.querySelector('.open').onclick = ()=>{
+        mediaRecorder.start()
+        console.log(mediaRecorder.state, 'open');
+    }
+    document.querySelector('.stop').onclick = ()=>{
+        mediaRecorder.stop()
+        console.log(mediaRecorder.state, 'stop');
+    }
+    // 录制完成后点击播放
+    document.querySelector('.play').onclick = ()=>{
+        document.querySelector('.my-audio').play()
+    }
+</script>
+</body>
+</html>
